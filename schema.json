@@ -1,0 +1,75 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://mass.eth.limo/schema.json",
+    "$defs": {
+     "address": {
+        "type": "string",
+        "pattern": "^0x[0-9a-fA-F]{40}$"
+      }
+    },
+    "title": "Shops Metadata",
+    "description": "This is the default Mass Market Metadata scheme which is extended from the ERC721 standard.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Identifies the asset to which this NFT represents"
+        },
+        "description": {
+            "type": "string",
+            "description": "Describes the asset to which this NFT represents"
+        },
+        "image": {
+            "type": "string",
+            "format": "uri",
+            "description": "A URI pointing to a resource with mime type image/* representing the asset to which this NFT represents. Consider making any images at a width between 320 and 1080 pixels and aspect ratio between 1.91:1 and 4:5 inclusive."
+        },
+       "brief": {
+           "type": "string",
+           "description": "A shorter description of the the asset to which this NFT represents, recommended to 100-120 characters.",
+           "minLength": 100,
+           "maxLength": 120
+       },
+       "background": {
+           "type": "string",
+           "format": "uri",
+           "description": "A URI pointing to a resource with mime type image/* representing the asset to which this NFT represents. Consider making any images at a width between 320 and 1080 pixels and a rectangular aspect ratio of 1.91:1."
+       },
+       "discoverable": {
+           "type": "boolean",
+           "description": "Controls whether the referenced asset is allowed to be displayed through discovery mechanisms."
+       },
+       "paymentAddresses": {
+           "type": "array",
+           "description": "An array of ethereum addresses which the merchant accepts payments to",
+           "items": {
+                "$ref": "#/$defs/address",
+                "description": "An ethereum address"
+           }
+       },
+       "acceptedCurrencies": {
+           "type": "array",
+           "description": "An array of ethereum tokens which the merchant accepts as payments",
+           "items": {
+               "$ref": "#/$defs/address",
+               "description": "An ethereum address"
+           }
+       },
+       "pricingCurrency": {
+           "type": "object",
+           "description": "The currency which the listing in the shop are priced",
+           "properties": {
+               "address": {
+                   "$ref": "#/$defs/address",
+                   "description": "An ethereum address of an ERC20 token"
+               },
+               "chainId": {
+                   "type": "number",
+                   "description": "The chain ID of the currency"
+               }
+           },
+           "required": ["address", "chainId"]
+       }
+    },
+    "required": ["pricingCurrency", "acceptedCurrencies", "paymentAddresses", "name"]
+}
