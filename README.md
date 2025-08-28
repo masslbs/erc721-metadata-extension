@@ -7,6 +7,10 @@ changes are specified for use with the [Mass Market protocol](https://docs.mass.
 
 For more context, see: https://github.com/masslbs/Tennessine/issues/640
 
+## Schema
+
+The complete JSON schema is available in [`schema.json`](./schema.json). Key extensions to the ERC721 metadata standard include:
+
 ```diff
 {
     "title": "Asset Metadata",
@@ -26,7 +30,9 @@ For more context, see: https://github.com/masslbs/Tennessine/issues/640
         },
 +       "brief": {
 +           "type": "string",
-+           "description": "A shorter description of the the asset to which this NFT represents, recommended to 100-120 characters."
++           "description": "A shorter description of the the asset to which this NFT represents, recommended to 100-120 characters.",
++           "minLength": 100,
++           "maxLength": 120
 +       },
 +       "background": {
 +           "type": "string",
@@ -35,17 +41,69 @@ For more context, see: https://github.com/masslbs/Tennessine/issues/640
 +       "discoverable": {
 +           "type": "boolean",
 +           "description": "Controls whether the referenced asset is allowed to be displayed through discovery mechanisms."
++       },
++       "paymentAddresses": {
++           "type": "array",
++           "description": "An array of ethereum addresses which the merchant accepts payments to",
++           "items": {
++                "$ref": "#/$defs/address"
++           }
++       },
++       "acceptedCurrencies": {
++           "type": "array",
++           "description": "An array of ethereum tokens which the merchant accepts as payments",
++           "items": {
++               "$ref": "#/$defs/address"
++           }
++       },
++       "pricingCurrency": {
++           "type": "object",
++           "description": "The currency which the listing in the shop are priced",
++           "properties": {
++               "address": { "$ref": "#/$defs/address" },
++               "chainId": { "type": "number" }
++           },
++           "required": ["address", "chainId"]
 +       }
-    }
+    },
++   "required": ["pricingCurrency", "acceptedCurrencies", "paymentAddresses", "name"]
 }
 ```
+
+## Field Descriptions
 
 **Legend** with respect to interpreting the above schema for Mass Market purposes, given that the
 underlying NFT represents a Mass Market `Shop`:
 
-* `name` - the shop profile name. Its recommended length is 40 characters.
+* `name` - the shop profile name. Its recommended length is 40 characters. **Required.**
 * `description` - the full shop profile description.
 * `image` - the shop profile image. The profile image should be a square 1:1 format in the range of `320px x 320px` to `1080px x 1080px`. It will be rendered with a circular passe-partout in the Mass Market interface.
-* `brief` - a shorter shop description, displayed on aggregated shop discovery pages. If the string is in excess of 120 characters, the 121th character onward will be trimmed in the Mass Market interface.
+* `brief` - a shorter shop description, displayed on aggregated shop discovery pages. Must be 100-120 characters. If the string is in excess of 120 characters, the 121th character onward will be trimmed in the Mass Market interface.
 * `background` - the shop background image, displayed on aggregated shop discovery pages. The background image should be a rectangular 1.91:1 ratio in the range of `320px x 168px` to `1080px x 567px`.
 * `discoverable` - controls whether the shop is displayed on discovery pages.
+* `paymentAddresses` - array of Ethereum addresses where the shop accepts payments. **Required.**
+* `acceptedCurrencies` - array of ERC20 token addresses that the shop accepts as payment. **Required.**
+* `pricingCurrency` - the primary currency used for pricing items in the shop, with contract address and chain ID. **Required.**
+
+## Development
+
+This project uses Nix for development environment management.
+
+### Setup
+
+```bash
+# Enter development environment (requires direnv or manual nix develop)
+nix develop
+```
+
+### Testing
+
+Validate the JSON schema:
+
+```bash
+# Run schema validation
+just test
+
+# Or directly
+jv ./schema.json
+```
